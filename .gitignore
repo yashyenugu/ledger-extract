@@ -1,0 +1,20 @@
+# project instructions / reference docs — not committed
+CLAUDE.md
+docs/
+
+# env
+.env
+
+# python
+api/.venv/
+__pycache__/
+*.pyc
+.ruff_cache/
+.pytest_cache/
+
+# node
+web/node_modules/
+web/dist/
+
+# misc
+.DS_Store
