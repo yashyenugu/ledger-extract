@@ -7,7 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from alembic import command
 from app.db import check_db
-from app.storage import check_storage
+from app.documents import router as documents_router
+from app.storage import check_storage, ensure_bucket
 
 ALEMBIC_INI = Path(__file__).resolve().parent.parent / "alembic.ini"
 
@@ -20,6 +21,7 @@ def run_migrations() -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     run_migrations()
+    ensure_bucket()
     yield
 
 
@@ -31,6 +33,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+app.include_router(documents_router)
 
 
 @app.get("/health")

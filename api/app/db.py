@@ -1,4 +1,8 @@
+from collections.abc import Iterator
+from contextlib import contextmanager
+
 import psycopg
+from psycopg.rows import dict_row
 
 from app.settings import settings
 
@@ -19,3 +23,9 @@ def check_db() -> bool:
         return True
     except Exception:  # noqa: BLE001 — health check must never raise
         return False
+
+
+@contextmanager
+def get_connection() -> Iterator[psycopg.Connection]:
+    with psycopg.connect(_PSYCOPG_DSN, row_factory=dict_row) as conn:
+        yield conn

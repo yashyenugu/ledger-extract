@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     database_url: str
 
     minio_endpoint: str
+    minio_public_endpoint: str = "localhost:9000"
     minio_root_user: str
     minio_root_password: str
     minio_bucket: str

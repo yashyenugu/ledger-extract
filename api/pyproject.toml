@@ -11,6 +11,8 @@ dependencies = [
     "alembic>=1.13",
     "psycopg[binary]>=3.2",
     "minio>=7.2",
+    "python-magic>=0.4.27",
+    "python-multipart>=0.0.32",
 ]
 
 [dependency-groups]
