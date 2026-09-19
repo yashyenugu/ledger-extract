@@ -7,7 +7,7 @@ import psycopg
 from fastapi import APIRouter, File, HTTPException, Query, Response, UploadFile
 from pydantic import BaseModel
 
-from app import storage
+from app import pipeline, storage
 from app.db import get_connection
 from app.settings import settings
 
@@ -79,6 +79,7 @@ def _insert_document(
                 ),
             )
             row = cur.fetchone()
+            pipeline.bootstrap(conn, document_id)
             conn.commit()
             return row
         except psycopg.errors.UniqueViolation:
@@ -112,7 +113,8 @@ def _fetch_documents(limit: int, offset: int) -> tuple[list[dict], int]:
 
 @router.post("", response_model=UploadResult)
 async def upload_document(
-    response: Response, file: UploadFile = File(...)  # noqa: B008
+    response: Response,
+    file: UploadFile = File(...),  # noqa: B008
 ) -> UploadResult:
     hasher = hashlib.sha256()
     size = 0

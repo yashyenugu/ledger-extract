@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import { fetchDocuments } from './api'
+import { useEffect, useState } from 'react'
+import { fetchDocuments, subscribeToDocumentStatus, type DocumentSummary } from './api'
 
 const STATUS_COLORS: Record<string, string> = {
   UPLOADED: 'bg-gray-100 text-gray-700',
@@ -8,11 +9,39 @@ const STATUS_COLORS: Record<string, string> = {
   AUTO_APPROVED: 'bg-green-100 text-green-700',
 }
 
+function DocumentRow({ doc }: { doc: DocumentSummary }) {
+  const [liveStatus, setLiveStatus] = useState<string | null>(null)
+  const status = liveStatus ?? doc.status
+
+  useEffect(() => {
+    return subscribeToDocumentStatus(doc.id, setLiveStatus)
+  }, [doc.id])
+
+  return (
+    <tr className="border-b border-gray-100">
+      <td className="py-2 pr-4 font-medium text-gray-900">{doc.filename}</td>
+      <td className="py-2 pr-4">
+        <span
+          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+            STATUS_COLORS[status] ?? 'bg-yellow-100 text-yellow-700'
+          }`}
+        >
+          {status}
+        </span>
+      </td>
+      <td className="py-2 pr-4 text-gray-500">
+        {new Date(doc.created_at).toLocaleString()}
+      </td>
+      <td className="py-2 pr-4 font-mono text-xs text-gray-400">{doc.id}</td>
+    </tr>
+  )
+}
+
 export function DocumentsList() {
   const { data, isLoading, isError } = useQuery({
     queryKey: ['documents'],
     queryFn: fetchDocuments,
-    refetchInterval: 2000,
+    refetchInterval: 5000,
   })
 
   if (isLoading) {
@@ -39,26 +68,7 @@ export function DocumentsList() {
       </thead>
       <tbody>
         {data.items.map((doc) => (
-          <tr key={doc.id} className="border-b border-gray-100">
-            <td className="py-2 pr-4 font-medium text-gray-900">
-              {doc.filename}
-            </td>
-            <td className="py-2 pr-4">
-              <span
-                className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                  STATUS_COLORS[doc.status] ?? 'bg-yellow-100 text-yellow-700'
-                }`}
-              >
-                {doc.status}
-              </span>
-            </td>
-            <td className="py-2 pr-4 text-gray-500">
-              {new Date(doc.created_at).toLocaleString()}
-            </td>
-            <td className="py-2 pr-4 font-mono text-xs text-gray-400">
-              {doc.id}
-            </td>
-          </tr>
+          <DocumentRow key={doc.id} doc={doc} />
         ))}
       </tbody>
     </table>
