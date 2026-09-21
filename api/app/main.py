@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from alembic import command
 from app.db import check_db
 from app.documents import router as documents_router
+from app.events import router as events_router
 from app.storage import check_storage, ensure_bucket
 
 ALEMBIC_INI = Path(__file__).resolve().parent.parent / "alembic.ini"
@@ -36,6 +37,7 @@ app.add_middleware(
 
 
 app.include_router(documents_router)
+app.include_router(events_router)
 
 
 @app.get("/health")
